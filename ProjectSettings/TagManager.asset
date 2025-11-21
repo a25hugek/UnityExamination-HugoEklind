@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Cherry
   layers:
   - Default
   - TransparentFX
@@ -11,8 +12,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Collector
+  - Pickup
   - 
   - 
   - 
@@ -46,6 +47,9 @@ TagManager:
     locked: 0
   - name: Decor
     uniqueID: 2597788191
+    locked: 0
+  - name: Pickups
+    uniqueID: 608096197
     locked: 0
   - name: Player
     uniqueID: 86277285

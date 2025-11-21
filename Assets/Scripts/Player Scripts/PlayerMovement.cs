@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -62,5 +63,9 @@ public class PlayerMovement : MonoBehaviour
     private void Jump() {
         rgbd.AddForce(new Vector2(0, jumpForce));
     }
-    
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        
+    }
 }
