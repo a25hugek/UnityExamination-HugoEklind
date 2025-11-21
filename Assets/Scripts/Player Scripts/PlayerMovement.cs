@@ -1,5 +1,6 @@
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -9,15 +10,27 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform lFoot, rFoot;
     [SerializeField] private LayerMask whatIsGround;
     
+    [SerializeField] private Image heart1, heart2, heart3;
+    
     private Rigidbody2D rgbd;
     private SpriteRenderer sprend;
     private Animator anim;
     
     private bool isGrounded;
+    private bool hasKnockback = false;
+    private bool isDamaged = false;
+    private bool canMove = true;
+    
+    private int maxHP = 3;
+    private int currentHP;
+    private int knockbackForce;
     
     private float horizontalValue;
     private float verticalValue;
     private float rayDistance = 0.05f;
+    private float damagedTimer = 0;
+    private float spriteFlash = 0;
+    private float knockbackDelay = 0;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -26,16 +39,20 @@ public class PlayerMovement : MonoBehaviour
         sprend = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         
+        currentHP = maxHP;
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        horizontalValue = Input.GetAxis("Horizontal");
+        if(canMove == true) {
+            horizontalValue = Input.GetAxis("Horizontal");
+        }
         
         CheckGrounded();
         
-        if((Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown("space")) && isGrounded == true) {
+        if((Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown("space")) && isGrounded == true && canMove == true) {
             Jump();
         }
         
@@ -44,6 +61,33 @@ public class PlayerMovement : MonoBehaviour
         }
         if(horizontalValue > 0) {
             FlipSprite(false);
+        }
+        
+        if(isDamaged == true) {
+            damagedTimer += Time.deltaTime;
+            spriteFlash += Time.deltaTime;
+            if(spriteFlash >= 0.15 && sprend.enabled == true) {
+                spriteFlash = 0;
+                sprend.enabled = false;
+            }
+            else if(spriteFlash >= 0.15 && sprend.enabled == false) {
+                spriteFlash = 0;
+                sprend.enabled = true;
+            }
+            if(damagedTimer >= 3) {
+                spriteFlash = 0;
+                sprend.enabled = true;
+                isDamaged = false;
+                damagedTimer = 0;
+            }
+        }
+        if(hasKnockback == true && isGrounded == false && canMove == false) {
+            rgbd.AddForce(new Vector2(knockbackForce, 0));
+            knockbackDelay += Time.deltaTime;
+        }
+        else if(hasKnockback == true && isGrounded == true && knockbackDelay >= 0.2) {
+            hasKnockback = false;
+            canMove = true;
         }
 
         if (horizontalValue != 0) {
@@ -86,6 +130,42 @@ public class PlayerMovement : MonoBehaviour
         {
             isGrounded = false;
         }
+    }
+    
+    private void GameOver() {
+        SceneManager.LoadScene(0);
+    }
+    
+    public void TakeDamage(int damage, int direction) {
+        if(isDamaged == false) {
+            currentHP -= damage;
+
+            if(direction == 1) {
+                knockbackForce = 80;
+            }
+            else if(direction == -1) {
+                knockbackForce = -80;
+            }
+            
+            if(currentHP <= 0) {
+                GameOver();
+            }
+            else if(currentHP > 0 && direction != 0) {
+                rgbd.linearVelocity = Vector2.zero;
+                hasKnockback = true;
+                knockbackDelay = 0;
+                canMove = false;
+                canMove = false;
+                isDamaged = true;
+                rgbd.AddForce(new Vector2(0, 600));
+                Invoke("CanMoveAgain", 1f);
+            }
+        }
+    }
+    
+    private void CanMoveAgain() {
+        canMove = true;
+        hasKnockback = false;
     }
 
     private void OnTriggerEnter2D(Collider2D other)

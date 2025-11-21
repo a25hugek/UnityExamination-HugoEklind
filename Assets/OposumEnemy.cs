@@ -7,6 +7,8 @@ public class OposumEnemy : MonoBehaviour
     private Rigidbody2D rgbd;
     private SpriteRenderer sprend;
     private Animator anim;
+
+    private int direction;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -20,10 +22,12 @@ public class OposumEnemy : MonoBehaviour
     {
         if (sprend.flipX == true)
         {
+            direction = -1;
             rgbd.linearVelocity = new Vector2(moveSpeed * Time.deltaTime, rgbd.linearVelocityY);
         }
         else
         {
+            direction = 1;
             rgbd.linearVelocity = new Vector2(-moveSpeed * Time.deltaTime, rgbd.linearVelocityY);
         }
     }
@@ -33,6 +37,10 @@ public class OposumEnemy : MonoBehaviour
         if (other.CompareTag("PatrolBox"))
         {
             sprend.flipX = !sprend.flipX;
+        }
+        if (other.CompareTag("Player"))
+        {
+            other.GetComponent<PlayerMovement>().TakeDamage(1, direction);
         }
     }
 }
