@@ -32,6 +32,20 @@ public class PlayerMovement : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Z) && isGrounded == true) {
             Jump();
         }
+        
+        if(horizontalValue < 0) {
+            FlipSprite(true);
+        }
+        if(horizontalValue > 0) {
+            FlipSprite(false);
+        }
+
+        if (horizontalValue != 0) {
+            anim.SetBool("isMoving", true);
+        }
+        else {
+            anim.SetBool("isMoving", false);
+        }
     }
     
     private void FixedUpdate() {
